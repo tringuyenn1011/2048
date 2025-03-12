@@ -1,0 +1,20 @@
+# Thư mục build
+/build/
+temp/
+library/
+
+# Cấu hình cá nhân
+local/
+settings.json
+*.sln
+*.vcxproj
+*.vcxproj.filters
+
+# File log & tạm thời
+*.log
+*.tmp
+*.DS_Store
+Thumbs.db
+
+# Node modules (nếu dùng Cocos Creator với npm)
+node_modules/
