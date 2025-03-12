@@ -1,0 +1,120 @@
+// Learn TypeScript:
+//  - https://docs.cocos.com/creator/2.4/manual/en/scripting/typescript.html
+// Learn Attribute:
+//  - https://docs.cocos.com/creator/2.4/manual/en/scripting/reference/attributes.html
+// Learn life-cycle callbacks:
+//  - https://docs.cocos.com/creator/2.4/manual/en/scripting/life-cycle-callbacks.html
+
+
+import TileBoard from "./TileBoard";
+import TileState from "./TileState";
+
+
+const {ccclass, property} = cc._decorator;
+
+@ccclass
+export default class game_control extends cc.Component {
+
+    @property(cc.Node) Board_Container: cc.Node = null
+    @property(cc.Node) Game_Over: cc.Node = null
+
+    @property(cc.Label) Score_Number: cc.Label = null
+
+    @property(cc.Label) Best_Number: cc.Label = null
+
+    board: TileBoard;
+    score: number
+
+
+    // LIFE-CYCLE CALLBACKS:
+
+    onLoad () {
+        
+    }
+
+    start () {
+        this.board = this.Board_Container.getComponent("TileBoard")
+
+        this.score = 0
+        
+        this.NewGame()
+        
+    }
+
+    NewGame()
+    {
+        this.SetScore(0)
+        console.log(this.LoadHighScore().toString())
+        this.Best_Number.string = this.LoadHighScore().toString()
+
+        this.Game_Over.opacity = 0
+        this.Game_Over.active = false
+        this.board.ClearBoard()
+        this.board.CreateTile(2)
+        this.board.CreateTile(2)
+        
+    }
+
+    GameOver()
+    {
+
+        this.Game_Over.active = true
+
+        this.AnimateFate(186, 1000)
+    }
+
+    async AnimateFate(to: number, delay: number)
+    {
+        await this.sleep(delay)
+        let elapsed = 0
+        const duration = 1
+
+        const from = this.Game_Over.opacity
+
+        while(elapsed < duration)
+        {
+            const t = elapsed/duration
+            this.Game_Over.opacity = cc.misc.lerp(from, to, t)
+            elapsed += 1/60
+            await this.sleep(0)
+        }
+
+        this.Game_Over.opacity = to
+
+    }
+
+    sleep(ms: number)
+    {
+        return new Promise(resolve => setTimeout(resolve, ms))
+    }
+
+    SetScore(score: number)
+    {
+        this.score = score
+        this.Score_Number.string = score.toString() 
+
+        this.SaveHighScore()
+    }
+
+    IncreaseScore(point: number)
+    {
+        this.SetScore(this.score + point )
+    }
+
+    SaveHighScore()
+    {
+        let highscore = this.LoadHighScore()
+
+        if(this.score > highscore)
+            cc.sys.localStorage.setItem("highscore", this.score)     
+    }
+
+    LoadHighScore()
+    {
+        let highscore = cc.sys.localStorage.getItem("highscore")
+        if(highscore === null)
+            return 0
+        return highscore
+    }
+
+}
